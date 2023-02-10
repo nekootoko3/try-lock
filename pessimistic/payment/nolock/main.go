@@ -51,14 +51,16 @@ func main() {
 		log.Fatal("すでに支払い済みです。")
 	}
 
-	// 一定時間かかる外部 API 呼び出しを擬似的に行うため標準入力待ちしている
-	util.CallExternalAPI()
-
 	// 決済を行ったことを記録するため、bills.paid_at を現在時刻で更新する
+	// レコードへの更新を行えることを確認するために外部 API 呼び出し前に更新を行っている
 	paidAt := time.Now()
 	if _, err := tx.Exec("UPDATE bills SET paid_at = $1 WHERE id = $2", &paidAt, billID); err != nil {
 		log.Fatal(err)
 	}
+
+	// 一定時間かかる外部 API 呼び出しを擬似的に行うため標準入力待ちしている
+	util.CallExternalAPI()
+
 	if err := tx.Commit(); err != nil {
 		log.Fatal(err)
 	}
